@@ -1,0 +1,43 @@
+name: Daily AI Pulse
+
+on:
+  schedule:
+    # 00:05 UTC daily — five minutes past midnight avoids cron-second edge cases
+    - cron: "5 0 * * *"
+  workflow_dispatch: {}  # manual trigger via GitHub UI
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run pipeline
+        env:
+          EXA_API_KEY: ${{ secrets.EXA_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python -m src.main
+
+      - name: Commit and push artifacts
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/ data/
+          # Only commit if there are changes
+          git diff --cached --quiet || git commit -m "pulse: $(date -u +'%Y-%m-%d %H:%M UTC')"
+          git push

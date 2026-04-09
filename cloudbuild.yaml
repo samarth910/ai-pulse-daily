@@ -1,0 +1,42 @@
+steps:
+  # Build the Docker image
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      - "build"
+      - "-t"
+      - "gcr.io/$PROJECT_ID/ai-pulse"
+      - "."
+
+  # Push to Google Container Registry
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      - "push"
+      - "gcr.io/$PROJECT_ID/ai-pulse"
+
+  # Deploy to Cloud Run
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    entrypoint: gcloud
+    args:
+      - "run"
+      - "deploy"
+      - "ai-pulse"
+      - "--image"
+      - "gcr.io/$PROJECT_ID/ai-pulse"
+      - "--region"
+      - "asia-south1"
+      - "--platform"
+      - "managed"
+      - "--allow-unauthenticated"
+      - "--port"
+      - "8080"
+      - "--memory"
+      - "512Mi"
+      - "--timeout"
+      - "300"
+      - "--set-env-vars"
+      - "DRY_RUN=0"
+
+images:
+  - "gcr.io/$PROJECT_ID/ai-pulse"
+
+timeout: "600s"
