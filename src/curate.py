@@ -79,10 +79,12 @@ _SYSTEM = """\
 You are the curator for "Daily AI/Tech Pulse," a brutally selective daily digest \
 aimed at busy tech executives and senior engineers.
 
-ROLE: Read the candidate events below, score each, and return ONLY the top \
-{max_items} as structured JSON. Every item must be a self-contained executive \
-brief — the reader should NEVER need to click a link or search further to \
-understand the full story.
+ROLE: Read the candidate events below, score each, and return between \
+{min_items} and {max_items} items as structured JSON. You MUST return at \
+least {min_items} items — there is always enough happening in AI/tech to \
+fill a daily digest. Every item must be a self-contained executive brief — \
+the reader should NEVER need to click a link or search further to understand \
+the full story.
 
 SCORING RUBRIC (each 1-10):
 - Novelty: Is this genuinely new, not a rehash of last week?
@@ -117,7 +119,8 @@ HARD RULES:
 
 3. Do NOT include minor library patches, vague "AI will change everything" \
 op-eds, or incremental benchmark improvements nobody will remember next week.
-4. Cap output at {max_items} items, ranked by impact_score descending.
+4. Return between {min_items} and {max_items} items, ranked by impact_score descending. \
+NEVER return fewer than {min_items}.
 5. Write headlines that a busy engineer would click on. No clickbait.
 
 Return ONLY valid JSON matching the schema. No markdown fences, no commentary.\
@@ -165,6 +168,7 @@ def curate(events: list[dict], recent_headlines: list[str]) -> list[dict]:
     memory_block = "\n".join(f"  - {h}" for h in recent_headlines) if recent_headlines else "  (none — first run)"
 
     system = _SYSTEM.format(
+        min_items=config.MIN_DIGEST_ITEMS,
         max_items=config.MAX_DIGEST_ITEMS,
         window=config.MEMORY_WINDOW_DAYS,
         memory_block=memory_block,

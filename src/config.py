@@ -27,7 +27,7 @@ OPENROUTER_API_KEY: str = os.getenv("OPENROUTER_API_KEY", "")
 # ── LLM (via OpenRouter) ─────────────────────────────────────────────────────
 OPENROUTER_BASE_URL: str = os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")
 CURATOR_MODEL: str = os.getenv("CURATOR_MODEL", "anthropic/claude-opus-4.6")
-MAX_CURATOR_TOKENS: int = int(os.getenv("MAX_CURATOR_TOKENS", "8192"))
+MAX_CURATOR_TOKENS: int = int(os.getenv("MAX_CURATOR_TOKENS", "16384"))
 MAX_BRIEF_WORDS: int = int(os.getenv("MAX_BRIEF_WORDS", "300"))
 
 # ── Search ───────────────────────────────────────────────────────────────────
@@ -54,6 +54,7 @@ REDDIT_FEEDS: list[str] = [
 # ── Pipeline thresholds ──────────────────────────────────────────────────────
 MEMORY_WINDOW_DAYS: int = int(os.getenv("MEMORY_WINDOW_DAYS", "14"))
 MIN_DOMAINS: int = int(os.getenv("MIN_DOMAINS", "2"))
+MIN_DIGEST_ITEMS: int = int(os.getenv("MIN_DIGEST_ITEMS", "10"))
 MAX_DIGEST_ITEMS: int = int(os.getenv("MAX_DIGEST_ITEMS", "15"))
 MIN_CLUSTER_SIZE: int = int(os.getenv("MIN_CLUSTER_SIZE", "1"))
 

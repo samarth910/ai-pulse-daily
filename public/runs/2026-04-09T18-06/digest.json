@@ -1,22 +1,8 @@
 {
-  "generated_at": "2026-04-09T18:08:54.854078+00:00",
-  "window_days": 14,
-  "recent_headlines": [
-    "Meta Unveils Muse Spark, First AI Model Since Hiring Alexandr Wang",
-    "Meta Commits Additional $21 Billion to CoreWeave in Massive AI Cloud Deal",
-    "Anthropic Reveals AI Model It Says Is Too Powerful to Release Publicly",
-    "Anthropic Launches Claude Managed Agents for Enterprise AI Deployment",
-    "LG Releases EXAONE 4.5, Open 33B-Parameter Model Challenging Frontier Labs",
-    "PyTorch Foundation Adopts Safetensors as Official Contributed Project",
-    "Microsoft Ships Agent Framework 1.0 for Production Multi-Agent Systems",
-    "YouTube Shorts Rolls Out AI Avatars That Clone Your Voice and Appearance",
-    "Anthropic Forms Glasswing AI Cybersecurity Coalition with Industry Partners",
-    "OpenAI Publishes Framework for AI Child Safety Policies",
-    "C3 AI Launches C3 Code: Natural Language to Production Applications",
-    "UniX AI Ships Panther, a Wheeled Humanoid Robot for Real Household Deployment",
-    "Miro Integrates AI Agents Directly into Collaborative Whiteboards"
-  ],
-  "latest_run_items": [
+  "run_id": "2026-04-09T18-06",
+  "generated_at": "2026-04-09T18:08:54.856277+00:00",
+  "item_count": 13,
+  "items": [
     {
       "headline": "Meta Unveils Muse Spark, First AI Model Since Hiring Alexandr Wang",
       "summary": "Meta launched Muse Spark, a multimodal reasoning model and the company's first major AI release since recruiting Scale AI founder Alexandr Wang. The model signals Meta's aggressive push to compete with OpenAI and Google in frontier AI.",
