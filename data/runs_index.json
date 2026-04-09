@@ -1,0 +1,24 @@
+[
+  {
+    "run_id": "2026-04-09T13-10",
+    "timestamp": "2026-04-09T13:10:45.635738+00:00",
+    "item_count": 3,
+    "source_count": 0,
+    "top_headlines": [
+      "Claude Opus 4.6 Ships with 1M Context and Adaptive Thinking",
+      "Exa Launches Deep-Reasoning Search for AI Agents",
+      "Mistral Raises $1.2B Series C at $15B Valuation"
+    ]
+  },
+  {
+    "run_id": "2026-04-09T13-09",
+    "timestamp": "2026-04-09T13:09:19.250737+00:00",
+    "item_count": 3,
+    "source_count": 0,
+    "top_headlines": [
+      "Claude Opus 4.6 Ships with 1M Context and Adaptive Thinking",
+      "Exa Launches Deep-Reasoning Search for AI Agents",
+      "Mistral Raises $1.2B Series C at $15B Valuation"
+    ]
+  }
+]

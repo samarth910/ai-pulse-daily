@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Pulse — April 09, 2026</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
 tailwind.config = {
@@ -21,12 +20,12 @@ tailwind.config = {
   .card:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
   .card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
 </style>
+<title>AI Pulse — Dashboard</title>
 </head>
 <body class="bg-gray-950 text-gray-100 min-h-screen">
 
-  <!-- Header -->
   <header class="border-b border-gray-800">
-    <div class="max-w-3xl mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto px-4 py-8">
       <div class="flex items-center justify-between">
         <div>
           <h1 class="text-2xl font-bold tracking-tight">
@@ -34,183 +33,95 @@ tailwind.config = {
           </h1>
           <p class="text-sm text-gray-500 mt-1">The signal, not the noise</p>
         </div>
-        <div class="text-right">
-          <p class="text-sm font-medium text-gray-400">April 09, 2026</p>
-          <p class="text-xs text-gray-600">3 items · updated 03:03 UTC</p>
+        <div class="flex items-center gap-4">
+          <span id="run-status" class="text-xs text-gray-600 hidden"></span>
+          <button id="run-btn" onclick="triggerRun()"
+            class="px-5 py-2.5 bg-purple-600 hover:bg-purple-500 text-white text-sm font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 focus:ring-offset-gray-950">
+            Run Now
+          </button>
         </div>
       </div>
     </div>
   </header>
 
-  <!-- Body -->
-  <main class="max-w-3xl mx-auto px-4 py-8 space-y-4">
+  <main class="max-w-4xl mx-auto px-4 py-8">
   
-    
-    <article class="card bg-gray-900 border border-gray-800 rounded-xl p-5">
-      <div class="flex items-start justify-between gap-3 mb-2">
-        <h2 class="text-lg font-semibold leading-snug text-gray-50">Claude Opus 4.6 Ships with 1M Context and Adaptive Thinking</h2>
-        <span class="shrink-0 text-xs font-medium px-2.5 py-1 rounded-full bg-purple-500/20 text-purple-300">
-          Model
-        </span>
-      </div>
-      <p class="text-sm text-gray-400 leading-relaxed mb-3">First frontier model to offer million-token context at standard pricing — changes how long-horizon agent tasks are built.</p>
-      <div class="flex flex-wrap gap-3">
-        
-        <a href="https://anthropic.com/news/claude-opus-4-6" target="_blank" rel="noopener"
-           class="text-xs font-medium text-purple-400 hover:text-purple-300 hover:underline">
-          Anthropic Blog ↗
-        </a>
-        
-        <a href="https://news.ycombinator.com/item?id=00000" target="_blank" rel="noopener"
-           class="text-xs font-medium text-purple-400 hover:text-purple-300 hover:underline">
-          HN Discussion ↗
-        </a>
-        
-      </div>
+    <p class="text-sm text-gray-500 mb-6">2 runs so far</p>
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       
-      <div class="mt-3 flex items-center gap-1.5">
-        <span class="text-xs text-gray-600">Impact</span>
-        <div class="flex gap-0.5">
+      <a href="runs/2026-04-09T13-10/" class="card bg-gray-900 border border-gray-800 rounded-xl p-5 block hover:border-purple-500/50">
+        <p class="text-sm font-semibold text-gray-200">April 09, 2026</p>
+        <p class="text-xs text-gray-500 mt-0.5">13:10 UTC</p>
+        <p class="text-xs text-purple-400 mt-2">3 items</p>
+        
+        <ul class="mt-3 space-y-1">
           
-          <div class="w-2 h-2 rounded-full bg-purple-500"></div>
+          <li class="text-xs text-gray-400 leading-snug truncate">Claude Opus 4.6 Ships with 1M Context and Adaptive Thinking</li>
           
-          <div class="w-2 h-2 rounded-full bg-purple-500"></div>
+          <li class="text-xs text-gray-400 leading-snug truncate">Exa Launches Deep-Reasoning Search for AI Agents</li>
           
-          <div class="w-2 h-2 rounded-full bg-purple-500"></div>
+          <li class="text-xs text-gray-400 leading-snug truncate">Mistral Raises $1.2B Series C at $15B Valuation</li>
           
-          <div class="w-2 h-2 rounded-full bg-purple-500"></div>
-          
-          <div class="w-2 h-2 rounded-full bg-purple-500"></div>
-          
-          <div class="w-2 h-2 rounded-full bg-purple-500"></div>
-          
-          <div class="w-2 h-2 rounded-full bg-purple-500"></div>
-          
-          <div class="w-2 h-2 rounded-full bg-purple-500"></div>
-          
-          <div class="w-2 h-2 rounded-full bg-purple-500"></div>
-          
-          <div class="w-2 h-2 rounded-full bg-gray-800"></div>
-          
-        </div>
-      </div>
+        </ul>
+        
+      </a>
       
-    </article>
-    
-    <article class="card bg-gray-900 border border-gray-800 rounded-xl p-5">
-      <div class="flex items-start justify-between gap-3 mb-2">
-        <h2 class="text-lg font-semibold leading-snug text-gray-50">Exa Launches Deep-Reasoning Search for AI Agents</h2>
-        <span class="shrink-0 text-xs font-medium px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-300">
-          Tool
-        </span>
-      </div>
-      <p class="text-sm text-gray-400 leading-relaxed mb-3">Multi-step reasoning over live web data at query time — unlocks research agents that actually cite sources.</p>
-      <div class="flex flex-wrap gap-3">
+      <a href="runs/2026-04-09T13-09/" class="card bg-gray-900 border border-gray-800 rounded-xl p-5 block hover:border-purple-500/50">
+        <p class="text-sm font-semibold text-gray-200">April 09, 2026</p>
+        <p class="text-xs text-gray-500 mt-0.5">13:09 UTC</p>
+        <p class="text-xs text-purple-400 mt-2">3 items</p>
         
-        <a href="https://exa.ai/blog/deep-reasoning" target="_blank" rel="noopener"
-           class="text-xs font-medium text-purple-400 hover:text-purple-300 hover:underline">
-          Exa Blog ↗
-        </a>
+        <ul class="mt-3 space-y-1">
+          
+          <li class="text-xs text-gray-400 leading-snug truncate">Claude Opus 4.6 Ships with 1M Context and Adaptive Thinking</li>
+          
+          <li class="text-xs text-gray-400 leading-snug truncate">Exa Launches Deep-Reasoning Search for AI Agents</li>
+          
+          <li class="text-xs text-gray-400 leading-snug truncate">Mistral Raises $1.2B Series C at $15B Valuation</li>
+          
+        </ul>
         
-        <a href="https://reddit.com/r/MachineLearning/abc" target="_blank" rel="noopener"
-           class="text-xs font-medium text-purple-400 hover:text-purple-300 hover:underline">
-          r/MachineLearning ↗
-        </a>
-        
-      </div>
+      </a>
       
-      <div class="mt-3 flex items-center gap-1.5">
-        <span class="text-xs text-gray-600">Impact</span>
-        <div class="flex gap-0.5">
-          
-          <div class="w-2 h-2 rounded-full bg-purple-500"></div>
-          
-          <div class="w-2 h-2 rounded-full bg-purple-500"></div>
-          
-          <div class="w-2 h-2 rounded-full bg-purple-500"></div>
-          
-          <div class="w-2 h-2 rounded-full bg-purple-500"></div>
-          
-          <div class="w-2 h-2 rounded-full bg-purple-500"></div>
-          
-          <div class="w-2 h-2 rounded-full bg-purple-500"></div>
-          
-          <div class="w-2 h-2 rounded-full bg-purple-500"></div>
-          
-          <div class="w-2 h-2 rounded-full bg-purple-500"></div>
-          
-          <div class="w-2 h-2 rounded-full bg-gray-800"></div>
-          
-          <div class="w-2 h-2 rounded-full bg-gray-800"></div>
-          
-        </div>
-      </div>
-      
-    </article>
-    
-    <article class="card bg-gray-900 border border-gray-800 rounded-xl p-5">
-      <div class="flex items-start justify-between gap-3 mb-2">
-        <h2 class="text-lg font-semibold leading-snug text-gray-50">Mistral Raises $1.2B Series C at $15B Valuation</h2>
-        <span class="shrink-0 text-xs font-medium px-2.5 py-1 rounded-full bg-yellow-500/20 text-yellow-300">
-          Funding
-        </span>
-      </div>
-      <p class="text-sm text-gray-400 leading-relaxed mb-3">Largest European AI funding round — signals open-weight models remain a credible counterweight to US frontier labs.</p>
-      <div class="flex flex-wrap gap-3">
-        
-        <a href="https://techcrunch.com/2026/04/mistral-series-c" target="_blank" rel="noopener"
-           class="text-xs font-medium text-purple-400 hover:text-purple-300 hover:underline">
-          TechCrunch ↗
-        </a>
-        
-        <a href="https://twitter.com/MistralAI/status/00000" target="_blank" rel="noopener"
-           class="text-xs font-medium text-purple-400 hover:text-purple-300 hover:underline">
-          X/Twitter ↗
-        </a>
-        
-      </div>
-      
-      <div class="mt-3 flex items-center gap-1.5">
-        <span class="text-xs text-gray-600">Impact</span>
-        <div class="flex gap-0.5">
-          
-          <div class="w-2 h-2 rounded-full bg-purple-500"></div>
-          
-          <div class="w-2 h-2 rounded-full bg-purple-500"></div>
-          
-          <div class="w-2 h-2 rounded-full bg-purple-500"></div>
-          
-          <div class="w-2 h-2 rounded-full bg-purple-500"></div>
-          
-          <div class="w-2 h-2 rounded-full bg-purple-500"></div>
-          
-          <div class="w-2 h-2 rounded-full bg-purple-500"></div>
-          
-          <div class="w-2 h-2 rounded-full bg-purple-500"></div>
-          
-          <div class="w-2 h-2 rounded-full bg-gray-800"></div>
-          
-          <div class="w-2 h-2 rounded-full bg-gray-800"></div>
-          
-          <div class="w-2 h-2 rounded-full bg-gray-800"></div>
-          
-        </div>
-      </div>
-      
-    </article>
-    
+    </div>
   
   </main>
 
-  <!-- Footer -->
   <footer class="border-t border-gray-800 mt-12">
-    <div class="max-w-3xl mx-auto px-4 py-6 text-center">
-      <p class="text-xs text-gray-600">
-        Built to cut through the noise · Triangulated from 0 sources ·
-        <a href="digest.json" class="text-purple-500 hover:underline">JSON feed</a>
-      </p>
+    <div class="max-w-4xl mx-auto px-4 py-6 text-center">
+      <p class="text-xs text-gray-600">Built to cut through the noise</p>
     </div>
   </footer>
+
+  <script>
+  async function triggerRun() {
+    const btn = document.getElementById('run-btn');
+    const status = document.getElementById('run-status');
+    btn.disabled = true;
+    btn.textContent = 'Running…';
+    btn.classList.add('opacity-50', 'cursor-not-allowed');
+    status.textContent = 'Pipeline triggered — this takes 30-60s';
+    status.classList.remove('hidden');
+    try {
+      const resp = await fetch('/run-now', { method: 'POST' });
+      if (resp.ok) {
+        status.textContent = 'Done! Reloading…';
+        setTimeout(() => window.location.reload(), 3000);
+      } else {
+        const text = await resp.text();
+        status.textContent = 'Error: ' + text;
+        btn.disabled = false;
+        btn.textContent = 'Run Now';
+        btn.classList.remove('opacity-50', 'cursor-not-allowed');
+      }
+    } catch (e) {
+      status.textContent = 'Network error: ' + e.message;
+      btn.disabled = false;
+      btn.textContent = 'Run Now';
+      btn.classList.remove('opacity-50', 'cursor-not-allowed');
+    }
+  }
+  </script>
 
 </body>
 </html>

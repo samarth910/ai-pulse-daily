@@ -33,6 +33,8 @@ steps:
       - "512Mi"
       - "--timeout"
       - "300"
+      - "--set-secrets"
+      - "EXA_API_KEY=exa-api-key:latest,OPENROUTER_API_KEY=openrouter-api-key:latest,RUN_SECRET=run-secret:latest"
       - "--set-env-vars"
       - "DRY_RUN=0"
 

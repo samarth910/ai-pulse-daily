@@ -22,11 +22,13 @@ HISTORY_PATH = DATA_DIR / "history.json"
 
 # ── API keys (placeholders OK — checked at runtime) ─────────────────────────
 EXA_API_KEY: str = os.getenv("EXA_API_KEY", "")
-ANTHROPIC_API_KEY: str = os.getenv("ANTHROPIC_API_KEY", "")
+OPENROUTER_API_KEY: str = os.getenv("OPENROUTER_API_KEY", "")
 
-# ── LLM ──────────────────────────────────────────────────────────────────────
-CURATOR_MODEL: str = os.getenv("CURATOR_MODEL", "claude-sonnet-4-6-20250217")
-MAX_CURATOR_TOKENS: int = int(os.getenv("MAX_CURATOR_TOKENS", "4096"))
+# ── LLM (via OpenRouter) ─────────────────────────────────────────────────────
+OPENROUTER_BASE_URL: str = os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")
+CURATOR_MODEL: str = os.getenv("CURATOR_MODEL", "anthropic/claude-opus-4.6")
+MAX_CURATOR_TOKENS: int = int(os.getenv("MAX_CURATOR_TOKENS", "8192"))
+MAX_BRIEF_WORDS: int = int(os.getenv("MAX_BRIEF_WORDS", "300"))
 
 # ── Search ───────────────────────────────────────────────────────────────────
 SEARCH_WINDOW_HOURS: int = int(os.getenv("SEARCH_WINDOW_HOURS", "36"))

@@ -34,7 +34,7 @@ Sources → normalize/dedupe → event buckets → independence gate → curator
 
 - **Language:** Python 3.11+
 - **Search:** Exa (semantic, date-bounded queries). Supplement with HN (Algolia API), subreddit RSS—avoid brittle `site:twitter.com`-only strategies as the primary ingest.
-- **LLM:** Anthropic API — use **Sonnet-class** for bulk structuring/scoring; **Opus-class** only if needed for final polish (cap cost per run).
+- **LLM:** OpenRouter API → Claude Opus 4.6 for curation and executive briefs.
 - **Output:** Static `index.html` + `digest.json`; optional `feed.xml`.
 - **Automation:** GitHub Actions (cron + `workflow_dispatch`), or equivalent.
 
@@ -91,5 +91,5 @@ Adjust names as you implement; keep **one obvious entrypoint** (`main.py`).
 
 ## References
 
-- Anthropic: structured outputs, model IDs — see current [Claude docs](https://docs.anthropic.com).
+- OpenRouter: model routing, API docs — see [OpenRouter docs](https://openrouter.ai/docs).
 - Exa: use current Search API; check [Exa docs](https://docs.exa.ai) for deprecations.

@@ -24,7 +24,7 @@ Every step is a console click or a Cloud Shell command — nothing on your local
 - A credit/debit card (GCP requires it but won't charge on free tier; new accounts get $300 free credit)
 - Your two API keys ready:
   - `EXA_API_KEY` (from https://exa.ai)
-  - `ANTHROPIC_API_KEY` (from https://console.anthropic.com)
+  - `OPENROUTER_API_KEY` (from https://openrouter.ai/keys)
 
 ---
 
@@ -65,13 +65,9 @@ Everything from here happens inside Cloud Shell.
 
 If your code is on GitHub:
 ```bash
-git clone https://github.com/YOUR_USERNAME/YOUR_REPO.git
-cd YOUR_REPO
+git clone https://github.com/samarth910/ai-pulse-daily.git
+cd ai-pulse-daily
 ```
-
-If it's not on GitHub yet, you can upload files:
-- Click the three-dot menu `⋮` in the Cloud Shell toolbar → **Upload file**
-- Or zip the folder and upload it
 
 ---
 
@@ -82,11 +78,11 @@ We use GCP Secret Manager so your API keys are **encrypted at rest** and
 
 ```bash
 # Set your project
-gcloud config set project ai-pulse
+gcloud config set project ai-pulse-492803
 
-# Create secrets (it will prompt you to type/paste the value)
+# Create secrets (paste your actual key values)
 echo -n "YOUR_EXA_KEY_HERE" | gcloud secrets create exa-api-key --data-file=-
-echo -n "YOUR_ANTHROPIC_KEY_HERE" | gcloud secrets create anthropic-api-key --data-file=-
+echo -n "YOUR_OPENROUTER_KEY_HERE" | gcloud secrets create openrouter-api-key --data-file=-
 
 # Generate a random token to protect the /run endpoint
 RUN_SECRET=$(python3 -c "import secrets; print(secrets.token_urlsafe(32))")
@@ -94,24 +90,44 @@ echo -n "$RUN_SECRET" | gcloud secrets create run-secret --data-file=-
 echo "Save this RUN_SECRET value: $RUN_SECRET"
 ```
 
+If secrets already exist from a prior deployment, add a new version instead:
+```bash
+echo -n "NEW_VALUE" | gcloud secrets versions add exa-api-key --data-file=-
+echo -n "NEW_VALUE" | gcloud secrets versions add openrouter-api-key --data-file=-
+```
+
 ---
 
-## Step 6: Build and deploy to Cloud Run
+## Step 6: Grant Cloud Run permission to read secrets
 
 ```bash
-# Build the Docker image using Cloud Build (runs on Google's servers, not your machine)
-gcloud builds submit --tag gcr.io/ai-pulse/ai-pulse
+PROJECT_NUMBER=$(gcloud projects describe ai-pulse-492803 --format="value(projectNumber)")
+
+for SECRET in exa-api-key openrouter-api-key run-secret; do
+  gcloud secrets add-iam-policy-binding $SECRET \
+    --member="serviceAccount:${PROJECT_NUMBER}-compute@developer.gserviceaccount.com" \
+    --role="roles/secretmanager.secretAccessor"
+done
+```
+
+---
+
+## Step 7: Build and deploy to Cloud Run
+
+```bash
+# Build the Docker image using Cloud Build
+gcloud builds submit --tag gcr.io/ai-pulse-492803/ai-pulse
 
 # Deploy to Cloud Run
 gcloud run deploy ai-pulse \
-  --image gcr.io/ai-pulse/ai-pulse \
+  --image gcr.io/ai-pulse-492803/ai-pulse \
   --region asia-south1 \
   --platform managed \
   --allow-unauthenticated \
   --port 8080 \
   --memory 512Mi \
   --timeout 300 \
-  --set-secrets "EXA_API_KEY=exa-api-key:latest,ANTHROPIC_API_KEY=anthropic-api-key:latest,RUN_SECRET=run-secret:latest" \
+  --set-secrets "EXA_API_KEY=exa-api-key:latest,OPENROUTER_API_KEY=openrouter-api-key:latest,RUN_SECRET=run-secret:latest" \
   --set-env-vars "DRY_RUN=0"
 ```
 
@@ -120,18 +136,17 @@ After ~2 minutes, Cloud Run gives you a URL like:
 https://ai-pulse-xxxxx-el.a.run.app
 ```
 
-**Open it in your browser.** You should see the AI Pulse page (it will run the
-pipeline on first boot).
+**Open it in your browser.** You should see the AI Pulse homepage.
 
 ---
 
-## Step 7: Set up daily scheduled runs
+## Step 8: Set up daily scheduled runs
 
 Cloud Scheduler will call your `/run` endpoint every day at 00:05 UTC.
 
 ```bash
-# Get your Cloud Run URL (copy the output)
-gcloud run services describe ai-pulse --region asia-south1 --format="value(status.url)"
+# Get your Cloud Run URL
+CLOUD_RUN_URL=$(gcloud run services describe ai-pulse --region asia-south1 --format="value(status.url)")
 
 # Get your RUN_SECRET
 RUN_SECRET=$(gcloud secrets versions access latest --secret=run-secret)
@@ -139,22 +154,19 @@ RUN_SECRET=$(gcloud secrets versions access latest --secret=run-secret)
 # Create the scheduled job
 gcloud scheduler jobs create http ai-pulse-daily \
   --schedule="5 0 * * *" \
-  --uri="YOUR_CLOUD_RUN_URL/run" \
+  --uri="${CLOUD_RUN_URL}/run" \
   --http-method=POST \
-  --headers="X-Run-Token=$RUN_SECRET" \
+  --headers="X-Run-Token=${RUN_SECRET}" \
   --time-zone="UTC" \
   --location="asia-south1" \
   --attempt-deadline="300s"
 ```
 
-Replace `YOUR_CLOUD_RUN_URL` with the actual URL from the previous step.
-
 ---
 
-## Step 8: Test it manually
+## Step 9: Test it manually
 
 ```bash
-# Trigger a run right now to verify everything works
 RUN_SECRET=$(gcloud secrets versions access latest --secret=run-secret)
 CLOUD_RUN_URL=$(gcloud run services describe ai-pulse --region asia-south1 --format="value(status.url)")
 
@@ -172,14 +184,14 @@ Wait ~30 seconds, then refresh your Cloud Run URL in the browser.
 After you change code, just run these two commands in Cloud Shell:
 
 ```bash
-cd YOUR_REPO
-git pull  # if using GitHub
+cd ai-pulse-daily
+git pull
 
-gcloud builds submit --tag gcr.io/ai-pulse/ai-pulse
+gcloud builds submit --tag gcr.io/ai-pulse-492803/ai-pulse
 gcloud run deploy ai-pulse \
-  --image gcr.io/ai-pulse/ai-pulse \
+  --image gcr.io/ai-pulse-492803/ai-pulse \
   --region asia-south1 \
-  --set-secrets "EXA_API_KEY=exa-api-key:latest,ANTHROPIC_API_KEY=anthropic-api-key:latest,RUN_SECRET=run-secret:latest" \
+  --set-secrets "EXA_API_KEY=exa-api-key:latest,OPENROUTER_API_KEY=openrouter-api-key:latest,RUN_SECRET=run-secret:latest" \
   --set-env-vars "DRY_RUN=0"
 ```
 
@@ -189,7 +201,7 @@ gcloud run deploy ai-pulse \
 
 ### 1. API keys are NOT in your code
 
-Your Exa and Anthropic keys are stored in **GCP Secret Manager** — encrypted
+Your Exa and OpenRouter keys are stored in **GCP Secret Manager** — encrypted
 with Google-managed keys (AES-256). They are injected into the container at
 runtime as environment variables. Even if someone reads your GitHub repo,
 your Dockerfile, or your Cloud Build logs, they will never see the keys.
@@ -215,6 +227,7 @@ prevents attackers from guessing the secret one character at a time.
 |------|-----------|
 | Someone finds your URL and spams GET requests | Free tier absorbs this; Cloud Run auto-scales and bills per request, but the page is cached so cost is negligible |
 | Someone finds your URL and spams POST /run | Protected by RUN_SECRET; returns 403 |
+| Someone finds your URL and spams POST /run-now | Threading lock prevents concurrent runs; worst case is extra API costs (~$0.05/run) |
 | Your API keys leak from GCP | Would require compromising your Google account; use 2FA |
 | Cloud Build logs expose secrets | Secrets are injected via `--set-secrets`, not `--set-env-vars`, so they don't appear in build logs |
 

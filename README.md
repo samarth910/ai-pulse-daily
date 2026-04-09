@@ -2,7 +2,7 @@
 
 A batch pipeline that runs once per day, ingests AI/tech signals from the open web, clusters them into events, enforces independent multi-source corroboration, uses an LLM for curation and copy, and publishes a static digest (HTML + JSON).
 
-**Target output:** 10–15 high-signal items per run.
+**Target output:** 10–15 high-signal items per run, each with a fully-synthesized executive brief.
 
 ---
 
@@ -11,9 +11,9 @@ A batch pipeline that runs once per day, ingests AI/tech signals from the open w
 ### 1. Clone and install
 
 ```bash
-git clone <your-repo-url>
-cd Some_new_vibe_coded_project
-python -m venv .venv && source .venv/bin/activate  # or .venv\Scripts\activate on Windows
+git clone https://github.com/samarth910/ai-pulse-daily.git
+cd ai-pulse-daily
+python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
@@ -21,15 +21,13 @@ pip install -r requirements.txt
 
 ```bash
 cp .env.example .env
-# Edit .env — add your EXA_API_KEY and ANTHROPIC_API_KEY
+# Edit .env — add your EXA_API_KEY and OPENROUTER_API_KEY
 ```
 
 ### 3. Run (dry run — no API keys needed)
 
 ```bash
 DRY_RUN=1 python -m src.main
-# On Windows PowerShell:
-# $env:DRY_RUN="1"; python -m src.main
 ```
 
 Open `public/index.html` in your browser.
@@ -46,7 +44,7 @@ python -m src.main
 
 ```
 Exa + HN + Reddit → normalize/dedupe → cluster into events → independence gate (≥2 domains)
-→ LLM curator (Anthropic + memory of last 14 days) → validate JSON → render HTML + JSON
+→ LLM curator (OpenRouter → Claude Opus 4.6 + memory of last 14 days) → validate JSON → render HTML + JSON
 ```
 
 Every stage is a separate module in `src/`. See `CLAUDE.md` for engineering contracts and `docs/ARCHITECTURE.md` for the full deep-dive.
@@ -72,7 +70,7 @@ The last 14 days of published headlines are loaded from `data/archive.jsonl` and
 The workflow at `.github/workflows/daily.yml` runs at **00:05 UTC daily** and on manual dispatch. Add these secrets to your repo:
 
 - `EXA_API_KEY`
-- `ANTHROPIC_API_KEY`
+- `OPENROUTER_API_KEY`
 
 It commits generated files to `public/` and `data/` automatically.
 
@@ -91,7 +89,7 @@ Quick summary:
 
 1. Push this repo to GitHub.
 2. Create a new project on [Railway](https://railway.com) → **Deploy from GitHub**.
-3. Add environment variables: `EXA_API_KEY`, `ANTHROPIC_API_KEY`, `RUN_SECRET`.
+3. Add environment variables: `EXA_API_KEY`, `OPENROUTER_API_KEY`, `RUN_SECRET`.
 4. Railway will auto-detect `railway.json` and start the static server on port 8080.
 5. To trigger a run: `POST /run` with header `X-Run-Token: <your-secret>`.
 6. For scheduled runs, add a **Railway Cron** service that runs `python -m src.main` at `5 0 * * *`.
@@ -105,11 +103,12 @@ All tunables live in `src/config.py` and read from environment variables. See `.
 | Variable | Default | What it controls |
 |----------|---------|-----------------|
 | `EXA_API_KEY` | *(required)* | Exa search API key |
-| `ANTHROPIC_API_KEY` | *(required)* | Anthropic Claude API key |
-| `CURATOR_MODEL` | `claude-sonnet-4-6-20250217` | Which Claude model to use |
+| `OPENROUTER_API_KEY` | *(required)* | OpenRouter API key (routes to Claude Opus 4.6) |
+| `CURATOR_MODEL` | `anthropic/claude-opus-4.6` | Which model to use via OpenRouter |
 | `SEARCH_WINDOW_HOURS` | `36` | How far back to search |
 | `MEMORY_WINDOW_DAYS` | `14` | How many days of headlines to inject as memory |
 | `MAX_DIGEST_ITEMS` | `15` | Max items in the daily digest |
+| `MAX_BRIEF_WORDS` | `300` | Target word count for executive briefs |
 | `MIN_DOMAINS` | `2` | Minimum distinct domains for triangulation |
 | `DRY_RUN` | `0` | Set to `1` to skip APIs and use sample data |
 | `RUN_SECRET` | *(empty)* | Token to protect POST /run endpoint |
@@ -136,12 +135,12 @@ All tunables live in `src/config.py` and read from environment variables. See `.
 │   ├── normalize.py              # URL canonicalization + dedupe
 │   ├── cluster.py                # Title-similarity event grouping
 │   ├── gates.py                  # Independence gate (≥2 domains)
-│   ├── state.py                  # Archive + history persistence
-│   ├── curate.py                 # Anthropic LLM + memory + validation
+│   ├── state.py                  # Archive + history + runs index
+│   ├── curate.py                 # OpenRouter LLM + memory + validation
 │   ├── render.py                 # Jinja2 HTML + JSON output
 │   └── main.py                   # Orchestrator
-├── data/                         # Runtime state (archive.jsonl, history.json)
-├── public/                       # Generated site (index.html, digest.json)
+├── data/                         # Runtime state (archive.jsonl, runs_index.json)
+├── public/                       # Generated site (homepage + per-run pages)
 ├── docs/                         # Architecture documentation
 └── .github/workflows/daily.yml   # Scheduled CI
 ```
