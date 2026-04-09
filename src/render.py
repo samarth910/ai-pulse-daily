@@ -57,6 +57,10 @@ tailwind.config = {
   body { font-family: 'Inter', system-ui, sans-serif; }
   .card:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
   .card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+  @keyframes led-pulse { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+  .led { width:8px; height:8px; border-radius:50%; display:inline-block; }
+  .led-green { background:#22c55e; animation: led-pulse 2s ease-in-out infinite; }
+  .led-amber { background:#f59e0b; animation: led-pulse 0.8s ease-in-out infinite; }
 </style>
 """
 
@@ -80,8 +84,15 @@ _HOMEPAGE_TEMPLATE = Template("""\
           </h1>
           <p class="text-sm text-gray-500 mt-1">The signal, not the noise</p>
         </div>
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-3">
           <span id="run-status" class="text-xs text-gray-600 hidden"></span>
+          {% if runs %}
+          <button id="analyze-btn" onclick="analyzeQuality()"
+            class="px-4 py-2.5 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-white text-sm font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 focus:ring-offset-gray-950 flex items-center gap-2">
+            <span id="analyze-led" class="led led-green"></span>
+            Analyze Quality by Claude
+          </button>
+          {% endif %}
           <button id="run-btn" onclick="triggerRun()"
             class="px-5 py-2.5 bg-purple-600 hover:bg-purple-500 text-white text-sm font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 focus:ring-offset-gray-950">
             Run Now
@@ -181,7 +192,76 @@ _HOMEPAGE_TEMPLATE = Template("""\
       alert('Network error: ' + e.message);
     }
   }
+
+  async function analyzeQuality() {
+    const btn = document.getElementById('analyze-btn');
+    const led = document.getElementById('analyze-led');
+    const status = document.getElementById('run-status');
+    btn.disabled = true;
+    btn.innerHTML = '<span id="analyze-led" class="led led-amber"></span> Analyzing...';
+    btn.classList.add('opacity-70', 'cursor-not-allowed');
+    status.textContent = 'Sending items to Claude for quality analysis...';
+    status.classList.remove('hidden');
+    try {
+      const resp = await fetch('/analyze-quality', { method: 'POST' });
+      const data = await resp.json();
+      if (resp.ok && data.analysis) {
+        status.classList.add('hidden');
+        showAnalysisModal(data);
+      } else {
+        status.textContent = 'Error: ' + (data.error || 'Unknown error');
+      }
+    } catch (e) {
+      status.textContent = 'Network error: ' + e.message;
+    }
+    btn.disabled = false;
+    btn.innerHTML = '<span class="led led-green"></span> Analyze Quality by Claude';
+    btn.classList.remove('opacity-70', 'cursor-not-allowed');
+  }
+
+  function showAnalysisModal(data) {
+    const overlay = document.getElementById('analysis-modal');
+    const body = document.getElementById('analysis-body');
+    const meta = document.getElementById('analysis-meta');
+    meta.textContent = data.runs_analyzed + ' runs, ' + data.items_analyzed + ' items analyzed';
+    body.innerHTML = markdownToHtml(data.analysis);
+    overlay.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeAnalysisModal() {
+    document.getElementById('analysis-modal').classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+
+  function markdownToHtml(md) {
+    return md
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/^## (.+)$/gm, '<h2 class="text-lg font-bold text-purple-300 mt-6 mb-2">$1</h2>')
+      .replace(/^# (.+)$/gm, '<h1 class="text-xl font-bold text-white mt-4 mb-3">$1</h1>')
+      .replace(/\*\*(.+?)\*\*/g, '<strong class="text-gray-200">$1</strong>')
+      .replace(/^\- (.+)$/gm, '<li class="ml-4 text-sm text-gray-400 leading-relaxed list-disc">$1</li>')
+      .replace(/^(\d+)\. (.+)$/gm, '<li class="ml-4 text-sm text-gray-400 leading-relaxed list-decimal">$1. $2</li>')
+      .replace(/\n\n/g, '</p><p class="text-sm text-gray-400 leading-relaxed mb-2">')
+      .replace(/^/, '<p class="text-sm text-gray-400 leading-relaxed mb-2">')
+      + '</p>';
+  }
   </script>
+
+  <!-- Quality Analysis Modal -->
+  <div id="analysis-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm overflow-y-auto">
+    <div class="max-w-3xl mx-auto px-4 py-8 min-h-screen">
+      <div class="bg-gray-900 border border-gray-700 rounded-2xl p-6 md:p-8 relative">
+        <button onclick="closeAnalysisModal()"
+          class="absolute top-4 right-4 text-gray-500 hover:text-white text-2xl leading-none">&times;</button>
+        <div class="mb-6">
+          <h2 class="text-xl font-bold text-white">Quality Analysis by Claude</h2>
+          <p id="analysis-meta" class="text-xs text-gray-500 mt-1"></p>
+        </div>
+        <div id="analysis-body" class="prose-compact"></div>
+      </div>
+    </div>
+  </div>
 
 </body>
 </html>
