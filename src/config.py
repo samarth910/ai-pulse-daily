@@ -42,8 +42,8 @@ EXA_QUERIES: list[str] = [
 ]
 EXA_RESULTS_PER_QUERY: int = int(os.getenv("EXA_RESULTS_PER_QUERY", "25"))
 
-HN_QUERY: str = "AI OR LLM OR GPT OR Claude OR diffusion OR agent"
-HN_RESULTS: int = int(os.getenv("HN_RESULTS", "30"))
+HN_QUERIES: list[str] = ["AI", "LLM", "GPT", "Claude", "diffusion", "machine learning"]
+HN_RESULTS_PER_QUERY: int = int(os.getenv("HN_RESULTS_PER_QUERY", "10"))
 
 REDDIT_FEEDS: list[str] = [
     "https://www.reddit.com/r/MachineLearning/top/.rss?t=day",

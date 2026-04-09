@@ -46,42 +46,32 @@ tailwind.config = {
 
   <main class="max-w-4xl mx-auto px-4 py-8">
   
-    <p class="text-sm text-gray-500 mb-6">2 runs so far</p>
+    <p class="text-sm text-gray-500 mb-6">1 run so far</p>
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       
-      <a href="runs/2026-04-09T13-10/" class="card bg-gray-900 border border-gray-800 rounded-xl p-5 block hover:border-purple-500/50">
-        <p class="text-sm font-semibold text-gray-200">April 09, 2026</p>
-        <p class="text-xs text-gray-500 mt-0.5">13:10 UTC</p>
-        <p class="text-xs text-purple-400 mt-2">3 items</p>
-        
-        <ul class="mt-3 space-y-1">
+      <div class="card bg-gray-900 border border-gray-800 rounded-xl p-5 relative group" id="card-2026-04-09T18-01">
+        <a href="runs/2026-04-09T18-01/" class="block">
+          <p class="text-sm font-semibold text-gray-200">April 09, 2026</p>
+          <p class="text-xs text-gray-500 mt-0.5">18:03 UTC</p>
+          <p class="text-xs text-purple-400 mt-2">5 items</p>
           
-          <li class="text-xs text-gray-400 leading-snug truncate">Claude Opus 4.6 Ships with 1M Context and Adaptive Thinking</li>
+          <ul class="mt-3 space-y-1">
+            
+            <li class="text-xs text-gray-400 leading-snug truncate">Meta Debuts Muse Spark, First Model From Its Superintelligence Lab</li>
+            
+            <li class="text-xs text-gray-400 leading-snug truncate">Meta Commits Additional $21 Billion to CoreWeave in Massive AI Infrastructure Deal</li>
+            
+            <li class="text-xs text-gray-400 leading-snug truncate">Anthropic Warns Its Newest AI Model Can Help Hackers Find Software Vulnerabilities Faster</li>
+            
+          </ul>
           
-          <li class="text-xs text-gray-400 leading-snug truncate">Exa Launches Deep-Reasoning Search for AI Agents</li>
-          
-          <li class="text-xs text-gray-400 leading-snug truncate">Mistral Raises $1.2B Series C at $15B Valuation</li>
-          
-        </ul>
-        
-      </a>
-      
-      <a href="runs/2026-04-09T13-09/" class="card bg-gray-900 border border-gray-800 rounded-xl p-5 block hover:border-purple-500/50">
-        <p class="text-sm font-semibold text-gray-200">April 09, 2026</p>
-        <p class="text-xs text-gray-500 mt-0.5">13:09 UTC</p>
-        <p class="text-xs text-purple-400 mt-2">3 items</p>
-        
-        <ul class="mt-3 space-y-1">
-          
-          <li class="text-xs text-gray-400 leading-snug truncate">Claude Opus 4.6 Ships with 1M Context and Adaptive Thinking</li>
-          
-          <li class="text-xs text-gray-400 leading-snug truncate">Exa Launches Deep-Reasoning Search for AI Agents</li>
-          
-          <li class="text-xs text-gray-400 leading-snug truncate">Mistral Raises $1.2B Series C at $15B Valuation</li>
-          
-        </ul>
-        
-      </a>
+        </a>
+        <button onclick="event.stopPropagation(); deleteRun('2026-04-09T18-01')"
+          class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-gray-600 hover:text-red-400 p-1.5 rounded-lg hover:bg-red-500/10"
+          title="Delete this run">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+        </button>
+      </div>
       
     </div>
   
@@ -98,14 +88,14 @@ tailwind.config = {
     const btn = document.getElementById('run-btn');
     const status = document.getElementById('run-status');
     btn.disabled = true;
-    btn.textContent = 'Running…';
+    btn.textContent = 'Running...';
     btn.classList.add('opacity-50', 'cursor-not-allowed');
-    status.textContent = 'Pipeline triggered — this takes 30-60s';
+    status.textContent = 'Pipeline triggered - this takes 30-60s';
     status.classList.remove('hidden');
     try {
       const resp = await fetch('/run-now', { method: 'POST' });
       if (resp.ok) {
-        status.textContent = 'Done! Reloading…';
+        status.textContent = 'Done! Reloading...';
         setTimeout(() => window.location.reload(), 3000);
       } else {
         const text = await resp.text();
@@ -119,6 +109,25 @@ tailwind.config = {
       btn.disabled = false;
       btn.textContent = 'Run Now';
       btn.classList.remove('opacity-50', 'cursor-not-allowed');
+    }
+  }
+
+  async function deleteRun(runId) {
+    if (!confirm('Delete this run? This cannot be undone.')) return;
+    try {
+      const resp = await fetch('/delete-run', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ run_id: runId }),
+      });
+      if (resp.ok) {
+        const card = document.getElementById('card-' + runId);
+        if (card) card.remove();
+      } else {
+        alert('Failed to delete: ' + (await resp.text()));
+      }
+    } catch (e) {
+      alert('Network error: ' + e.message);
     }
   }
   </script>

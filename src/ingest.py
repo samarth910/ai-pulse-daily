@@ -50,7 +50,6 @@ def collect_exa() -> list[dict]:
         try:
             resp = client.search_and_contents(
                 query=query,
-                use_autoprompt=True,
                 num_results=config.EXA_RESULTS_PER_QUERY,
                 start_published_date=start_date,
                 text={"max_characters": 500},
@@ -75,37 +74,49 @@ _HN_SEARCH = "https://hn.algolia.com/api/v1/search_by_date"
 
 
 def collect_hn() -> list[dict]:
-    """Fetch recent HN stories matching AI-related terms."""
+    """Fetch recent HN stories matching AI-related terms.
+
+    Algolia doesn't support boolean OR in the query param, so we run one
+    request per search term and merge/dedupe by objectID.
+    """
     cutoff = datetime.now(timezone.utc) - timedelta(hours=config.SEARCH_WINDOW_HOURS)
     cutoff_ts = int(cutoff.timestamp())
 
-    try:
-        resp = requests.get(
-            _HN_SEARCH,
-            params={
-                "query": config.HN_QUERY,
-                "tags": "story",
-                "numericFilters": f"created_at_i>{cutoff_ts}",
-                "hitsPerPage": config.HN_RESULTS,
-            },
-            timeout=15,
-        )
-        resp.raise_for_status()
-        data = resp.json()
-    except Exception as exc:
-        log.error("HN fetch failed: %s", exc)
-        return []
-
+    seen_ids: set[str] = set()
     records: list[dict] = []
-    for hit in data.get("hits", []):
-        url = hit.get("url") or f"https://news.ycombinator.com/item?id={hit.get('objectID', '')}"
-        records.append({
-            "url": url,
-            "title": hit.get("title", ""),
-            "snippet": "",
-            "published": hit.get("created_at"),
-            "source": "hn",
-        })
+
+    for term in config.HN_QUERIES:
+        try:
+            resp = requests.get(
+                _HN_SEARCH,
+                params={
+                    "query": term,
+                    "tags": "story",
+                    "numericFilters": f"created_at_i>{cutoff_ts}",
+                    "hitsPerPage": config.HN_RESULTS_PER_QUERY,
+                },
+                timeout=15,
+            )
+            resp.raise_for_status()
+            data = resp.json()
+        except Exception as exc:
+            log.error("HN fetch failed for '%s': %s", term, exc)
+            continue
+
+        for hit in data.get("hits", []):
+            oid = hit.get("objectID", "")
+            if oid in seen_ids:
+                continue
+            seen_ids.add(oid)
+            url = hit.get("url") or f"https://news.ycombinator.com/item?id={oid}"
+            records.append({
+                "url": url,
+                "title": hit.get("title", ""),
+                "snippet": "",
+                "published": hit.get("created_at"),
+                "source": "hn",
+            })
+
     log.info("HN collected %d raw records", len(records))
     return records
 

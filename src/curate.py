@@ -199,7 +199,9 @@ def curate(events: list[dict], recent_headlines: list[str]) -> list[dict]:
         return []
 
     raw_text = response.choices[0].message.content if response.choices else ""
-    return _parse_and_validate(raw_text or "")
+    items = _parse_and_validate(raw_text or "")
+    _inject_source_links(items, events)
+    return items
 
 
 def _parse_and_validate(raw: str) -> list[dict]:
@@ -224,13 +226,17 @@ def _parse_and_validate(raw: str) -> list[dict]:
         return []
 
     validated: list[dict] = []
-    for item in items:
+    for i, item in enumerate(items):
         if not isinstance(item, dict):
+            log.warning("Curator item %d is not a dict, skipping", i)
             continue
-        if not item.get("headline") or not item.get("links"):
+        if not item.get("headline"):
+            log.warning("Curator item %d missing headline, skipping", i)
             continue
-        if not isinstance(item.get("links"), list) or len(item["links"]) < 1:
-            continue
+        if not item.get("links") or not isinstance(item.get("links"), list):
+            log.warning("Curator item %d (%s) missing or invalid links, keeping with empty links",
+                        i, item.get("headline", "?")[:50])
+            item["links"] = item.get("links") or []
         item.setdefault("impact_score", 5)
         item.setdefault("category", "other")
         item.setdefault("summary", "")
@@ -241,3 +247,45 @@ def _parse_and_validate(raw: str) -> list[dict]:
     validated = validated[: config.MAX_DIGEST_ITEMS]
     log.info("Curator returned %d validated items", len(validated))
     return validated
+
+
+def _inject_source_links(items: list[dict], events: list[dict]) -> None:
+    """Ensure every item has source links by matching headlines to events.
+
+    The LLM sometimes omits structured links. We fall back to the URLs from
+    the original event records, labelled by their domain.
+    """
+    event_map: dict[str, dict] = {}
+    for ev in events:
+        key = ev.get("event_key", "").lower().strip()
+        event_map[key] = ev
+
+    for item in items:
+        if item.get("links"):
+            continue
+
+        headline = item.get("headline", "").lower().strip()
+        best_event = None
+        best_score = 0.0
+        for key, ev in event_map.items():
+            tokens_h = set(headline.split())
+            tokens_k = set(key.split())
+            if tokens_h and tokens_k:
+                score = len(tokens_h & tokens_k) / len(tokens_h | tokens_k)
+                if score > best_score:
+                    best_score = score
+                    best_event = ev
+
+        if best_event:
+            seen_domains: set[str] = set()
+            links: list[dict] = []
+            for rec in best_event.get("records", []):
+                domain = rec.get("domain", "")
+                if domain in seen_domains:
+                    continue
+                seen_domains.add(domain)
+                label = domain.replace(".com", "").replace(".org", "").title()
+                links.append({"url": rec.get("url", ""), "label": label})
+                if len(links) >= 3:
+                    break
+            item["links"] = links

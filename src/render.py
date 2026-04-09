@@ -96,18 +96,25 @@ _HOMEPAGE_TEMPLATE = Template("""\
     <p class="text-sm text-gray-500 mb-6">{{ runs|length }} run{{ 's' if runs|length != 1 else '' }} so far</p>
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {% for run in runs %}
-      <a href="runs/{{ run.run_id }}/" class="card bg-gray-900 border border-gray-800 rounded-xl p-5 block hover:border-purple-500/50">
-        <p class="text-sm font-semibold text-gray-200">{{ run.display_date }}</p>
-        <p class="text-xs text-gray-500 mt-0.5">{{ run.display_time }} UTC</p>
-        <p class="text-xs text-purple-400 mt-2">{{ run.item_count }} item{{ 's' if run.item_count != 1 else '' }}</p>
-        {% if run.top_headlines %}
-        <ul class="mt-3 space-y-1">
-          {% for h in run.top_headlines %}
-          <li class="text-xs text-gray-400 leading-snug truncate">{{ h }}</li>
-          {% endfor %}
-        </ul>
-        {% endif %}
-      </a>
+      <div class="card bg-gray-900 border border-gray-800 rounded-xl p-5 relative group" id="card-{{ run.run_id }}">
+        <a href="runs/{{ run.run_id }}/" class="block">
+          <p class="text-sm font-semibold text-gray-200">{{ run.display_date }}</p>
+          <p class="text-xs text-gray-500 mt-0.5">{{ run.display_time }} UTC</p>
+          <p class="text-xs text-purple-400 mt-2">{{ run.item_count }} item{{ 's' if run.item_count != 1 else '' }}</p>
+          {% if run.top_headlines %}
+          <ul class="mt-3 space-y-1">
+            {% for h in run.top_headlines %}
+            <li class="text-xs text-gray-400 leading-snug truncate">{{ h }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </a>
+        <button onclick="event.stopPropagation(); deleteRun('{{ run.run_id }}')"
+          class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-gray-600 hover:text-red-400 p-1.5 rounded-lg hover:bg-red-500/10"
+          title="Delete this run">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+        </button>
+      </div>
       {% endfor %}
     </div>
   {% else %}
@@ -132,14 +139,14 @@ _HOMEPAGE_TEMPLATE = Template("""\
     const btn = document.getElementById('run-btn');
     const status = document.getElementById('run-status');
     btn.disabled = true;
-    btn.textContent = 'Running…';
+    btn.textContent = 'Running...';
     btn.classList.add('opacity-50', 'cursor-not-allowed');
-    status.textContent = 'Pipeline triggered — this takes 30-60s';
+    status.textContent = 'Pipeline triggered - this takes 30-60s';
     status.classList.remove('hidden');
     try {
       const resp = await fetch('/run-now', { method: 'POST' });
       if (resp.ok) {
-        status.textContent = 'Done! Reloading…';
+        status.textContent = 'Done! Reloading...';
         setTimeout(() => window.location.reload(), 3000);
       } else {
         const text = await resp.text();
@@ -153,6 +160,25 @@ _HOMEPAGE_TEMPLATE = Template("""\
       btn.disabled = false;
       btn.textContent = 'Run Now';
       btn.classList.remove('opacity-50', 'cursor-not-allowed');
+    }
+  }
+
+  async function deleteRun(runId) {
+    if (!confirm('Delete this run? This cannot be undone.')) return;
+    try {
+      const resp = await fetch('/delete-run', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ run_id: runId }),
+      });
+      if (resp.ok) {
+        const card = document.getElementById('card-' + runId);
+        if (card) card.remove();
+      } else {
+        alert('Failed to delete: ' + (await resp.text()));
+      }
+    } catch (e) {
+      alert('Network error: ' + e.message);
     }
   }
   </script>

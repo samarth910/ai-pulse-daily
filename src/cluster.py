@@ -35,7 +35,7 @@ def _similarity(a: set[str], b: set[str]) -> float:
     return len(a & b) / len(a | b)
 
 
-_MERGE_THRESHOLD = 0.35  # two titles with ≥35% token overlap → same event
+_MERGE_THRESHOLD = 0.20  # two titles with ≥20% token overlap → same event
 
 
 def cluster_records(records: list[dict]) -> list[dict]:
