@@ -57,8 +57,22 @@ tailwind.config = {
 
   <main class="max-w-4xl mx-auto px-4 py-8">
   
-    <p class="text-sm text-gray-500 mb-6">1 run so far</p>
+    <p class="text-sm text-gray-500 mb-6">2 runs so far</p>
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      
+      <div class="card bg-gray-900 border border-gray-800 rounded-xl p-5 relative group" id="card-2026-04-10T03-24">
+        <a href="runs/2026-04-10T03-24/" class="block">
+          <p class="text-sm font-semibold text-gray-200">April 10, 2026</p>
+          <p class="text-xs text-gray-500 mt-0.5">03:24 UTC</p>
+          <p class="text-xs text-purple-400 mt-2">0 items</p>
+          
+        </a>
+        <button onclick="event.stopPropagation(); deleteRun('2026-04-10T03-24')"
+          class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-gray-600 hover:text-red-400 p-1.5 rounded-lg hover:bg-red-500/10"
+          title="Delete this run">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+        </button>
+      </div>
       
       <div class="card bg-gray-900 border border-gray-800 rounded-xl p-5 relative group" id="card-2026-04-09T18-06">
         <a href="runs/2026-04-09T18-06/" class="block">
