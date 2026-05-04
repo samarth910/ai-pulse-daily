@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+    },
+  },
+}
+</script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  body { font-family: 'Inter', system-ui, sans-serif; }
+  .card:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
+  .card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+  @keyframes led-pulse { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+  .led { width:8px; height:8px; border-radius:50%; display:inline-block; }
+  .led-green { background:#22c55e; animation: led-pulse 2s ease-in-out infinite; }
+  .led-amber { background:#f59e0b; animation: led-pulse 0.8s ease-in-out infinite; }
+</style>
+<title>AI Pulse — May 04, 2026</title>
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen">
+
+  <header class="border-b border-gray-800">
+    <div class="max-w-3xl mx-auto px-4 py-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <a href="/" class="text-xs text-purple-400 hover:text-purple-300 mb-2 inline-block">&larr; All runs</a>
+          <h1 class="text-2xl font-bold tracking-tight">
+            <span class="text-white">AI</span><span class="text-purple-400"> Pulse</span>
+          </h1>
+          <p class="text-sm text-gray-500 mt-1">The signal, not the noise</p>
+        </div>
+        <div class="text-right">
+          <p class="text-sm font-medium text-gray-400">May 04, 2026</p>
+          <p class="text-xs text-gray-600">0 items · updated 03:49 UTC</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-3xl mx-auto px-4 py-8 space-y-6">
+  
+    <div class="text-center py-20">
+      <p class="text-4xl mb-4">🌙</p>
+      <h2 class="text-xl font-semibold text-gray-300">Quiet day</h2>
+      <p class="text-sm text-gray-500 mt-2 max-w-md mx-auto">
+        Nothing passed the triangulation bar today.
+        Either the AI world took a breather, or our sources are temporarily unavailable.
+        Check back tomorrow.
+      </p>
+    </div>
+  
+  </main>
+
+  <footer class="border-t border-gray-800 mt-12">
+    <div class="max-w-3xl mx-auto px-4 py-6 text-center">
+      <p class="text-xs text-gray-600">
+        Built to cut through the noise · Triangulated from 79 sources ·
+        <a href="digest.json" class="text-purple-500 hover:underline">JSON feed</a>
+      </p>
+    </div>
+  </footer>
+
+</body>
+</html>
